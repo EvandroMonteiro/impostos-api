@@ -20,45 +20,43 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import st.gov.financas.impostosApi.event.RecursoCriadoEvent;
-import st.gov.financas.impostosApi.model.Categoria;
-import st.gov.financas.impostosApi.repository.CategoriaRepository;
+import st.gov.financas.impostosApi.model.Pessoa;
+import st.gov.financas.impostosApi.repository.PessoaRepository;
 
 /**
  *
  * @author barro
  */
 @RestController
-@RequestMapping("/categorias")
-public class CategoriaResource {
+@RequestMapping("/pessoas")
+public class PessoaResource {
 
     @Autowired
-    private CategoriaRepository categoriaRepository;
+    private PessoaRepository pessoaRepository;
 
     @Autowired
     private ApplicationEventPublisher publisher;
 
     @GetMapping
-    public List<Categoria> listar() {
+    public List<Pessoa> listar() {
 
-        return categoriaRepository.findAll();
+        return pessoaRepository.findAll();
 
     }
 
     @PostMapping
-    public ResponseEntity<Categoria> criar(@Valid @RequestBody Categoria categoria, HttpServletResponse response) {
-        Categoria categoriaSalva = categoriaRepository.save(categoria);
-        publisher.publishEvent(new RecursoCriadoEvent(this, response, categoriaSalva.getCodigo()));
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaSalva);
-
+    public ResponseEntity<Pessoa> criar(@Valid @RequestBody Pessoa pessoa, HttpServletResponse response) {
+        Pessoa pessoaSalva = pessoaRepository.save(pessoa);
+        publisher.publishEvent(new RecursoCriadoEvent(this, response, pessoaSalva.getCodigo()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(pessoaSalva);
     }
 
     @GetMapping("/{codigo}")
-    public ResponseEntity<Categoria> buscarPeloCodigo(@PathVariable Long codigo) {
-        Optional<Categoria> categEncotrada = categoriaRepository.findById(codigo);
+    public ResponseEntity<Pessoa> buscarPeloCodigo(@PathVariable Long codigo) {
+        Optional<Pessoa> pessoaEncotrada = pessoaRepository.findById(codigo);
 
-        if (categEncotrada.isPresent()) {
-            return new ResponseEntity(categEncotrada.get(), HttpStatus.OK);
+        if (pessoaEncotrada.isPresent()) {
+            return new ResponseEntity(pessoaEncotrada.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
