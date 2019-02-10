@@ -6,10 +6,8 @@
 package st.gov.financas.impostosApi.resource;
 
 import java.util.List;
-import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -26,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import st.gov.financas.impostosApi.event.RecursoCriadoEvent;
 import st.gov.financas.impostosApi.model.Pessoa;
 import st.gov.financas.impostosApi.repository.PessoaRepository;
+import st.gov.financas.impostosApi.service.PessoaService;
 
 /**
  *
@@ -39,13 +38,14 @@ public class PessoaResource {
     private PessoaRepository pessoaRepository;
 
     @Autowired
+    private PessoaService pessoaService;
+
+    @Autowired
     private ApplicationEventPublisher publisher;
 
     @GetMapping
     public List<Pessoa> listar() {
-
         return pessoaRepository.findAll();
-
     }
 
     @PostMapping
@@ -57,30 +57,32 @@ public class PessoaResource {
 
     @GetMapping("/{codigo}")
     public ResponseEntity<Pessoa> buscarPeloCodigo(@PathVariable Long codigo) {
-        Optional<Pessoa> pessoaEncotrada = pessoaRepository.findById(codigo);
+        Pessoa pessoaEncotrada = pessoaRepository.findOne(codigo);
 
-        if (pessoaEncotrada.isPresent()) {
-            return new ResponseEntity(pessoaEncotrada.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+//        if (pessoaEncotrada == null) {
+//            return new ResponseEntity(ResponseEntity.ok(), HttpStatus.OK);
+//        } else {
+        return pessoaEncotrada != null ? ResponseEntity.ok(pessoaEncotrada) : ResponseEntity.notFound().build();
     }
 
     //HttpStatus.NO_CONTENT codigo 204 dizendo que teve sucesso mas eu não tenho nada para retornar
     @DeleteMapping("/{codigo}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void apagarPessoa(@PathVariable Long codigo) {
+        pessoaRepository.delete(codigo);
 
-        pessoaRepository.deleteById(codigo);
     }
 
     @PutMapping("/{codigo}")
     public ResponseEntity<Pessoa> actualizarPessoa(@PathVariable Long codigo, @Valid @RequestBody Pessoa pessoa) {
-        Optional<Pessoa> pessoaSalva = pessoaRepository.findById(codigo);
-        BeanUtils.copyProperties(pessoa, pessoaSalva, "codigo");
-        pessoaRepository.save(pessoaSalva);
+        Pessoa pessoaSalva = pessoaService.actualizarPessoa(codigo, pessoa);
         return ResponseEntity.ok(pessoaSalva);
 
     }
 
+    @PutMapping("/{codigo}/ativo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void actualizarPropriedadeAtivo(@PathVariable Long codigo,  @RequestBody Boolean ativo) {
+        pessoaService.actualizarPropriedadeAtivo(codigo,ativo);
+    }
 }
