@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import st.gov.financas.impostosApi.model.Lancamento;
+import st.gov.financas.impostosApi.model.Pessoa;
 import st.gov.financas.impostosApi.repository.LancamentoRepository;
+import st.gov.financas.impostosApi.repository.PessoaRepository;
+import st.gov.financas.impostosApi.service.exception.PessoaInexistenteOuInativaException;
 
 /**
  *
@@ -18,17 +21,20 @@ import st.gov.financas.impostosApi.repository.LancamentoRepository;
  */
 @Service
 public class LancamentoService {
-
+    
     @Autowired
     private LancamentoRepository lancamentoRepository;
-
+    
+    @Autowired
+    private PessoaRepository pessoaRepository;
+    
     public Lancamento actualizarLancamento(Long codigo, Lancamento lancamento) {
         Lancamento LancamentoSalvo = buscarLancamentoPeloCodigo(codigo);
-
+        
         BeanUtils.copyProperties(lancamento, LancamentoSalvo, "codigo");
         return lancamentoRepository.save(LancamentoSalvo);
     }
-
+    
     private Lancamento buscarLancamentoPeloCodigo(Long codigo) throws EmptyResultDataAccessException {
         Lancamento lancamentoSalvo = lancamentoRepository.findOne(codigo);
         if (lancamentoSalvo == null) {
@@ -36,5 +42,14 @@ public class LancamentoService {
         }
         return lancamentoSalvo;
     }
-
+    
+    public Lancamento salvar(Lancamento lancamento) {
+        Pessoa pessoa = pessoaRepository.findOne(lancamento.getPessoa().getCodigo());
+        if (pessoa == null || pessoa.isInativo()) {
+            throw new PessoaInexistenteOuInativaException();
+        }
+        return lancamentoRepository.save(lancamento);
+        
+    }
+    
 }

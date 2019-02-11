@@ -5,6 +5,7 @@
  */
 package st.gov.financas.impostosApi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -33,7 +35,7 @@ public class Pessoa {
 
     @Embedded
     private Endereco endereco;
-    
+
     @NotNull
     private Boolean ativo;
 
@@ -60,6 +62,13 @@ public class Pessoa {
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
     }
+    //As anotações abaixo fazem com que o JSON ou o Hibernate
+    //não vejam isso como atributos e tentem serializar ou para salvar no banco de dados
+    @JsonIgnore
+    @Transient
+    public boolean isInativo() {
+        return !this.ativo;
+    }
 
     public Endereco getEndereco() {
         return endereco;
@@ -69,7 +78,6 @@ public class Pessoa {
         this.endereco = endereco;
     }
 
-    
     @Override
     public int hashCode() {
         int hash = 3;

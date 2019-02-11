@@ -7,11 +7,12 @@ package st.gov.financas.impostosApi.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import st.gov.financas.impostosApi.model.Lancamento;
+import st.gov.financas.impostosApi.repository.lancamento.LancamentoRepositoryQuery;
 
 /**
  *
  * @author Impostos
  */
-public interface LancamentoRepository extends JpaRepository<Lancamento, Long>{
+public interface LancamentoRepository extends JpaRepository<Lancamento, Long>, LancamentoRepositoryQuery{
     
 }
