@@ -72,16 +72,32 @@
             <version>3.4</version>
         </dependency>
         
-          <!-- Hibernate JPAMODELGEN resposavel por criar -->
+        <!-- Hibernate JPAMODELGEN resposavel por criar -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
             <version>5.0.12.Final</version>
         </dependency>
         
-           
+        <!-- Dependencia para implementação do security BASIC -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        
+        <!-- Dependencia para Implementoção do Security Oauth2 -->
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+        </dependency>
+        
+           <!-- Dependencia para Implementoção do Security Oauth2 -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-jwt</artifactId>
+        </dependency>
+        
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
