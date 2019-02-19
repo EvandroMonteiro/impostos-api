@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
  *
  * @author Impostos
  */
+
+//Esse filtro permite pegar o refresh token do cookei e add na requisição. 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE) //Definir o filtro com uma prioridade alta, para que seja add antes de tudo
 public class RefreshTokenCookiePreProcessorFilter implements Filter {
@@ -50,12 +52,10 @@ public class RefreshTokenCookiePreProcessorFilter implements Filter {
     
     @Override
     public void init(FilterConfig fc) throws ServletException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     @Override
     public void destroy() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     static class MyServleRequestWrapper extends HttpServletRequestWrapper {

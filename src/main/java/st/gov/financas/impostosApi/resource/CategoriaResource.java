@@ -6,13 +6,13 @@
 package st.gov.financas.impostosApi.resource;
 
 import java.util.List;
-import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +37,10 @@ public class CategoriaResource {
     @Autowired
     private ApplicationEventPublisher publisher;
 
+    //CrossOrigin permite abrir uma excessão para uma requisição funcionar a partir de uma ORIGIN diferente do meu dominio. 
+    //So o CrossOrigin ja permite que todas as origens sejam autorizadas a chamar o meu metodo listar
+    //maxAge 
+    @CrossOrigin(maxAge = 10)
     @GetMapping
     public List<Categoria> listar() {
 
@@ -57,7 +61,7 @@ public class CategoriaResource {
         Categoria categoriaSalva = categoriaRepository.findOne(codigo);
 
         if (categoriaSalva != null) {
-            return new ResponseEntity(ResponseEntity.ok(),HttpStatus.OK);
+            return new ResponseEntity(ResponseEntity.ok(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

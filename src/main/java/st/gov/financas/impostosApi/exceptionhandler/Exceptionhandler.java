@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-
 /**
  *
  * @author Impostos
@@ -65,6 +64,7 @@ public class Exceptionhandler extends ResponseEntityExceptionHandler {
         }
         return erros;
     }
+
     //Tratamento de excessão do EmptyResultDataAccessException
     @ExceptionHandler({EmptyResultDataAccessException.class})
     public ResponseEntity<Object> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex, WebRequest request) {
@@ -75,6 +75,7 @@ public class Exceptionhandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
 
     }
+
     //Tratamento de excessão do DataIntegrityViolationException, Erros como chave estrangeira diferente das existentes.
     @ExceptionHandler({DataIntegrityViolationException.class})
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
