@@ -13,7 +13,7 @@ import st.gov.financas.impostosApi.model.Usuario;
  *
  * @author Impostos
  */
-public interface UsuarioRepository extends JpaRepository<UsuarioRepository, Long> {
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     public Optional<Usuario> findByEmail(String email);
 
