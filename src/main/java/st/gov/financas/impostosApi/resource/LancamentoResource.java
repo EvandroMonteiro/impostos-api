@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,57 +43,62 @@ import st.gov.financas.impostosApi.service.exception.PessoaInexistenteOuInativaE
 @RestController
 @RequestMapping("/lancamentos")
 public class LancamentoResource {
-    
+
     @Autowired
     private LancamentoRepository lancamentoRepository;
-    
+
     @Autowired
     private ApplicationEventPublisher publisher;
-    
+
     @Autowired
     private LancamentoService lancamentoService;
-    
+
     @Autowired
     private MessageSource messageSource;
-    
+
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_PESQUISAR_LANCAMENTO') and #oauth2.hasScope('read')")
     public Page<Lancamento> pesquisar(LancamentoFilter lancamentoFilter, Pageable pageable) {
-        
+
         return lancamentoRepository.filtrar(lancamentoFilter, pageable);
-        
+
     }
-    
+
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_CADASTRAR_LANCAMENTO') and #oauth2.hasScope('write')")
     public ResponseEntity<Lancamento> criar(@Valid @RequestBody Lancamento lancamento, HttpServletResponse response) {
         Lancamento lancamentoSalvo = lancamentoService.salvar(lancamento);
         publisher.publishEvent(new RecursoCriadoEvent(this, response, lancamentoSalvo.getCodigo()));
         return ResponseEntity.status(HttpStatus.CREATED).body(lancamentoSalvo);
-        
+
     }
-    
+
     @GetMapping("/{codigo}")
+    @PreAuthorize("hasAuthority('ROLE_PESQUISAR_LANCAMENTO') and #oauth2.hasScope('read')")
     public ResponseEntity<Lancamento> buscarPeloCodigo(@PathVariable Long codigo) {
         Lancamento LancamentoSalvo = lancamentoRepository.findOne(codigo);
-        
+
         return LancamentoSalvo != null ? ResponseEntity.ok(LancamentoSalvo) : ResponseEntity.notFound().build();
-        
+
     }
 
     //HttpStatus.NO_CONTENT codigo 204 dizendo que teve sucesso mas eu não tenho nada para retornar
     @DeleteMapping("/{codigo}")
+    @PreAuthorize("hasAuthority('ROLE_REMOVER_LANCAMENTO') and #oauth2.hasScope('write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void apagarLancamento(@PathVariable Long codigo) {
         lancamentoRepository.delete(codigo);
-        
+
     }
-    
+
     @PutMapping("/{codigo}")
+    @PreAuthorize("hasAuthority('ROLE_CADASTRAR_LANCAMENTO') and #oauth2.hasScope('write')")
     public ResponseEntity<Lancamento> actualizarLancamento(@PathVariable Long codigo, @Valid @RequestBody Lancamento lancamento) {
         Lancamento lancamentoSalvo = lancamentoService.actualizarLancamento(codigo, lancamento);
         return ResponseEntity.ok(lancamentoSalvo);
-        
+
     }
-    
+
     @ExceptionHandler({PessoaInexistenteOuInativaException.class})
     public ResponseEntity<Object> handlePessoaInexistenteOuInativaException(PessoaInexistenteOuInativaException ex) {
         String mensagemUsuario = messageSource.getMessage("pessoa.inexistente-ou-inativa", null, LocaleContextHolder.getLocale());

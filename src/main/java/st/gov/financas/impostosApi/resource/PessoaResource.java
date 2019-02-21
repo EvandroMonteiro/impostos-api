@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,11 +45,13 @@ public class PessoaResource {
     private ApplicationEventPublisher publisher;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_PESQUISAR_PESSOA') and #oauth2.hasScope('read')")
     public List<Pessoa> listar() {
         return pessoaRepository.findAll();
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_CADASTRAR_PESSOA') and #oauth2.hasScope('write')")
     public ResponseEntity<Pessoa> criarPessoa(@Valid @RequestBody Pessoa pessoa, HttpServletResponse response) {
         Pessoa pessoaSalva = pessoaRepository.save(pessoa);
         publisher.publishEvent(new RecursoCriadoEvent(this, response, pessoaSalva.getCodigo()));
@@ -56,16 +59,15 @@ public class PessoaResource {
     }
 
     @GetMapping("/{codigo}")
+    @PreAuthorize("hasAuthority('ROLE_PESQUISAR_PESSOA') and #oauth2.hasScope('read')")
     public ResponseEntity<Pessoa> buscarPeloCodigo(@PathVariable Long codigo) {
         Pessoa pessoaEncotrada = pessoaRepository.findOne(codigo);
 
-//        if (pessoaEncotrada == null) {
-//            return new ResponseEntity(ResponseEntity.ok(), HttpStatus.OK);
-//        } else {
         return pessoaEncotrada != null ? ResponseEntity.ok(pessoaEncotrada) : ResponseEntity.notFound().build();
     }
 
     //HttpStatus.NO_CONTENT codigo 204 dizendo que teve sucesso mas eu não tenho nada para retornar
+    @PreAuthorize("hasAuthority('ROLE_REMOVER_PESSOA') and #oauth2.hasScope('write')")
     @DeleteMapping("/{codigo}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void apagarPessoa(@PathVariable Long codigo) {
@@ -73,6 +75,7 @@ public class PessoaResource {
 
     }
 
+    @PreAuthorize("hasAuthority('ROLE_CADASTRAR_PESSOA') and #oauth2.hasScope('write')")
     @PutMapping("/{codigo}")
     public ResponseEntity<Pessoa> actualizarPessoa(@PathVariable Long codigo, @Valid @RequestBody Pessoa pessoa) {
         Pessoa pessoaSalva = pessoaService.actualizarPessoa(codigo, pessoa);
@@ -81,8 +84,9 @@ public class PessoaResource {
     }
 
     @PutMapping("/{codigo}/ativo")
+    @PreAuthorize("hasAuthority('ROLE_CADASTRAR_PESSOA') and #oauth2.hasScope('write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void actualizarPropriedadeAtivo(@PathVariable Long codigo,  @RequestBody Boolean ativo) {
-        pessoaService.actualizarPropriedadeAtivo(codigo,ativo);
+    public void actualizarPropriedadeAtivo(@PathVariable Long codigo, @RequestBody Boolean ativo) {
+        pessoaService.actualizarPropriedadeAtivo(codigo, ativo);
     }
 }

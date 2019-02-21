@@ -32,15 +32,21 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()//colar o cliente memoria
-                .withClient("angular")//nome do cliente
-                .secret("@ngul@r0")//senha do cliente
-                .scopes("read", "write")//Scopo do cliente. Permite por exemplo limitar o cliente
-                .authorizedGrantTypes("password", "refresh_token")//
-                .accessTokenValiditySeconds(20)
-                .refreshTokenValiditySeconds(3600 * 24);
+                    .withClient("angular")//nome do cliente
+                    .secret("@ngul@r0")//senha do cliente
+                    .scopes("read", "write")//Scopo do cliente. Permite por exemplo limitar o cliente
+                    .authorizedGrantTypes("password", "refresh_token")//
+                    .accessTokenValiditySeconds(1800)
+                    .refreshTokenValiditySeconds(3600 * 24)
+                .and()
+                    .withClient("mobile")//nome do cliente
+                    .secret("m0b1l30")//senha do cliente
+                    .scopes("read")//Scopo do cliente. Permite por exemplo limitar o cliente
+                    .authorizedGrantTypes("password", "refresh_token")//
+                    .accessTokenValiditySeconds(1800)
+                    .refreshTokenValiditySeconds(3600 * 24);
 
     }
-    
 
     //
     @Override
