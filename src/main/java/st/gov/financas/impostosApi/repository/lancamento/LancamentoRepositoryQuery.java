@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import st.gov.financas.impostosApi.model.Lancamento;
 import st.gov.financas.impostosApi.repository.filter.LancamentoFilter;
+import st.gov.financas.impostosApi.repository.projection.ResumoLancamento;
 
 /**
  *
@@ -18,5 +19,6 @@ import st.gov.financas.impostosApi.repository.filter.LancamentoFilter;
 public interface LancamentoRepositoryQuery {
     
     public Page<Lancamento> filtrar(LancamentoFilter lancamentoFilter, Pageable pageable);
+    public Page<ResumoLancamento> resumir(LancamentoFilter lancamentoFilter, Pageable pageable);
     
 }

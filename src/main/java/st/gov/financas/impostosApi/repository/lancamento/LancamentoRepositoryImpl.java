@@ -19,9 +19,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
+import st.gov.financas.impostosApi.model.Categoria_;
 import st.gov.financas.impostosApi.model.Lancamento;
 import st.gov.financas.impostosApi.model.Lancamento_;
+import st.gov.financas.impostosApi.model.Pessoa_;
 import st.gov.financas.impostosApi.repository.filter.LancamentoFilter;
+import st.gov.financas.impostosApi.repository.projection.ResumoLancamento;
 
 /**
  *
@@ -47,6 +50,29 @@ public class LancamentoRepositoryImpl implements LancamentoRepositoryQuery {
         return new PageImpl<>(query.getResultList(), pageable, total(lancamentoFilter));
     }
 
+    @Override
+    public Page<ResumoLancamento> resumir(LancamentoFilter lancamentoFilter, Pageable pageable) {
+        CriteriaBuilder builder = manager.getCriteriaBuilder();
+        CriteriaQuery<ResumoLancamento> criteriaQuery = builder.createQuery(ResumoLancamento.class);
+        Root<Lancamento> root = criteriaQuery.from(Lancamento.class);
+
+        // fazer a selecção do resumo de lançamento
+        criteriaQuery.select(builder.construct(ResumoLancamento.class,
+                root.get(Lancamento_.codigo), root.get(Lancamento_.descricao),
+                root.get(Lancamento_.dataVencimento), root.get(Lancamento_.dataPagamento),
+                root.get(Lancamento_.valor), root.get(Lancamento_.tipo),
+                root.get(Lancamento_.categoria).get(Categoria_.nome),
+                root.get(Lancamento_.pessoa).get(Pessoa_.nome)));
+
+        //Criar as Restrições
+        Predicate[] predicates = CriarRestricoes(lancamentoFilter, builder, root);
+        criteriaQuery.where(predicates);
+
+        TypedQuery<ResumoLancamento> query = manager.createQuery(criteriaQuery);
+        adicionarRestricoesDePaginacao(query, pageable);
+        return new PageImpl<>(query.getResultList(), pageable, total(lancamentoFilter));
+    }
+
     private Predicate[] CriarRestricoes(LancamentoFilter lancamentoFilter, CriteriaBuilder builder, Root<Lancamento> root) {
         List<Predicate> predicates = new ArrayList<>();
 
@@ -66,7 +92,7 @@ public class LancamentoRepositoryImpl implements LancamentoRepositoryQuery {
 
     }
 
-    private void adicionarRestricoesDePaginacao(TypedQuery<Lancamento> query, Pageable pageable) {
+    private void adicionarRestricoesDePaginacao(TypedQuery<?> query, Pageable pageable) {
         int paginaAtual = pageable.getPageNumber();
         int totalRegistroPorPagina = pageable.getPageSize();
         int primeiroRegistroDaPagina = paginaAtual * totalRegistroPorPagina;
@@ -84,4 +110,5 @@ public class LancamentoRepositoryImpl implements LancamentoRepositoryQuery {
         criteria.select(builder.count(root));
         return manager.createQuery(criteria).getSingleResult();
     }
+
 }
