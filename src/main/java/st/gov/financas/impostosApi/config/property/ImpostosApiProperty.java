@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("imposto")
 public class ImpostosApiProperty {
 
-    private String origenPermitida = "http://localhost:8081";
+    private String originPermitida = "http://localhost:8081";
 
     private final Seguranca seguranca = new Seguranca();
 
@@ -22,14 +22,15 @@ public class ImpostosApiProperty {
         return seguranca;
     }
 
-    public String getOrigenPermitida() {
-        return origenPermitida;
+    public String getOriginPermitida() {
+        return originPermitida;
     }
 
-    public void setOrigenPermitida(String origenPermitida) {
-        this.origenPermitida = origenPermitida;
+    public void setOriginPermitida(String originPermitida) {
+        this.originPermitida = originPermitida;
     }
-    
+
+     
 
     public static class Seguranca {
 
