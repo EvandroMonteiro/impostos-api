@@ -100,11 +100,23 @@ public class LancamentoResource {
 
     }
 
+//    @PutMapping("/{codigo}")
+//    @PreAuthorize("hasAuthority('ROLE_CADASTRAR_LANCAMENTO') and #oauth2.hasScope('write')")
+//    public ResponseEntity<Lancamento> actualizarLancamento(@PathVariable Long codigo, @Valid @RequestBody Lancamento lancamento) {
+//        Lancamento lancamentoSalvo = lancamentoService.actualizarLancamento(codigo, lancamento);
+//        return ResponseEntity.ok(lancamentoSalvo);
+//
+//    }
     @PutMapping("/{codigo}")
-    @PreAuthorize("hasAuthority('ROLE_CADASTRAR_LANCAMENTO') and #oauth2.hasScope('write')")
+    @PreAuthorize("hasAuthority('ROLE_CADASTRAR_LANCAMENTO')")
     public ResponseEntity<Lancamento> actualizarLancamento(@PathVariable Long codigo, @Valid @RequestBody Lancamento lancamento) {
-        Lancamento lancamentoSalvo = lancamentoService.actualizarLancamento(codigo, lancamento);
-        return ResponseEntity.ok(lancamentoSalvo);
+        try {
+            Lancamento lancamentoSalvo = lancamentoService.actualizarLancamento(codigo, lancamento);
+            return ResponseEntity.ok(lancamentoSalvo);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
 
     }
 

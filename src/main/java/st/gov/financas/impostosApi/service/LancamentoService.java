@@ -21,35 +21,64 @@ import st.gov.financas.impostosApi.service.exception.PessoaInexistenteOuInativaE
  */
 @Service
 public class LancamentoService {
-    
+
     @Autowired
     private LancamentoRepository lancamentoRepository;
-    
+
     @Autowired
     private PessoaRepository pessoaRepository;
-    
+
+//    public Lancamento actualizarLancamento(Long codigo, Lancamento lancamento) {
+//        Lancamento LancamentoSalvo = buscarLancamentoPeloCodigo(codigo);
+//        
+//        BeanUtils.copyProperties(lancamento, LancamentoSalvo, "codigo");
+//        return lancamentoRepository.save(LancamentoSalvo);
+//    }
     public Lancamento actualizarLancamento(Long codigo, Lancamento lancamento) {
-        Lancamento LancamentoSalvo = buscarLancamentoPeloCodigo(codigo);
-        
+        Lancamento LancamentoSalvo = buscarLancamentoExistente(codigo);
+
+        if (!lancamento.getPessoa().equals(LancamentoSalvo.getPessoa())) {
+            validarPessoa(lancamento);
+        }
+
         BeanUtils.copyProperties(lancamento, LancamentoSalvo, "codigo");
         return lancamentoRepository.save(LancamentoSalvo);
     }
-    
-    private Lancamento buscarLancamentoPeloCodigo(Long codigo) throws EmptyResultDataAccessException {
+
+    private void validarPessoa(Lancamento lancamento) {
+        Pessoa pessoa = null;
+        if (lancamento.getPessoa().getCodigo() != null) {
+            pessoa = pessoaRepository.findOne(lancamento.getPessoa().getCodigo());
+
+        }
+        if (pessoa == null || pessoa.isInativo()) {
+            throw new PessoaInexistenteOuInativaException();
+
+        }
+    }
+
+//    private Lancamento buscarLancamentoPeloCodigo(Long codigo) throws EmptyResultDataAccessException {
+//        Lancamento lancamentoSalvo = lancamentoRepository.findOne(codigo);
+//        if (lancamentoSalvo == null) {
+//            throw new EmptyResultDataAccessException(1);
+//        }
+//        return lancamentoSalvo;
+//    }
+    private Lancamento buscarLancamentoExistente(Long codigo) {
         Lancamento lancamentoSalvo = lancamentoRepository.findOne(codigo);
         if (lancamentoSalvo == null) {
-            throw new EmptyResultDataAccessException(1);
+            throw new IllegalArgumentException();
         }
         return lancamentoSalvo;
     }
-    
+
     public Lancamento salvar(Lancamento lancamento) {
         Pessoa pessoa = pessoaRepository.findOne(lancamento.getPessoa().getCodigo());
         if (pessoa == null || pessoa.isInativo()) {
             throw new PessoaInexistenteOuInativaException();
         }
         return lancamentoRepository.save(lancamento);
-        
+
     }
-    
+
 }
